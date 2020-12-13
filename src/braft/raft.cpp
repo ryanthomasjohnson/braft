@@ -246,6 +246,10 @@ int64_t Node::get_peer_last_committed(const braft::PeerId &peer) {
     return _impl->get_peer_last_committed(peer);
 }
 
+int64_t Node::get_last_heartbeat_timestamp() {
+    return _impl->get_last_heartbeat_timestamp();
+}
+
 // ------------- Iterator
 void Iterator::next() {
     if (valid()) {

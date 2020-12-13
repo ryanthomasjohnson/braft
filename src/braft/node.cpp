@@ -128,6 +128,7 @@ static inline int heartbeat_timeout(int election_timeout) {
 NodeImpl::NodeImpl(const GroupId& group_id, const PeerId& peer_id)
     : _state(STATE_UNINITIALIZED)
     , _current_term(0)
+    , _last_heartbeat_timestamp(0)
     , _group_id(group_id)
     , _server_id(peer_id)
     , _conf_ctx(this)
@@ -154,6 +155,7 @@ NodeImpl::NodeImpl(const GroupId& group_id, const PeerId& peer_id)
 NodeImpl::NodeImpl()
     : _state(STATE_UNINITIALIZED)
     , _current_term(0)
+    , _last_heartbeat_timestamp(0)
     , _group_id()
     , _server_id()
     , _conf_ctx(this)
@@ -1262,6 +1264,10 @@ void NodeImpl::unsafe_reset_election_timeout_ms(int election_timeout_ms,
 
 int64_t NodeImpl::get_peer_last_committed(const braft::PeerId &peer) {
     return _ballot_box->get_last_committed(peer);
+}
+
+int64_t NodeImpl::get_last_heartbeat_timestamp() {
+    return _last_heartbeat_timestamp;
 }
 
 void NodeImpl::on_error(const Error& e) {
@@ -2379,6 +2385,12 @@ void NodeImpl::handle_append_entries_request(brpc::Controller* cntl,
 
     // update configuration after _log_manager updated its memory status
     _log_manager->check_and_set_configuration(&_conf);
+
+    // update last sync time with master
+    if (request->has_timestamp()) {
+        _last_heartbeat_timestamp = std::max(_last_heartbeat_timestamp, 
+                                             request->timestamp());
+    }
 }
 
 int NodeImpl::increase_term_to(int64_t new_term, const butil::Status& status) {

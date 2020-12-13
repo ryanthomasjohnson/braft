@@ -764,6 +764,8 @@ public:
 
     int64_t get_peer_last_committed(const braft::PeerId &peer);
 
+    int64_t get_last_heartbeat_timestamp();
+
 private:
     NodeImpl* _impl;
 };

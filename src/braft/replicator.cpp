@@ -549,11 +549,13 @@ void Replicator::_send_empty_entries(bool is_heartbeat) {
         // _id is unlock in _install_snapshot
         return _install_snapshot();
     }
+    int64_t send_time = butil::monotonic_time_ms();
     if (is_heartbeat) {
         _heartbeat_in_fly = cntl->call_id();
         _heartbeat_counter++;
         // set RPC timeout for heartbeat, how long should timeout be is waiting to be optimized.
         cntl->set_timeout_ms(*_options.election_timeout_ms / 2);
+        request->set_timestamp(send_time);
     } else {
         _st.st = APPENDING_ENTRIES;
         _st.first_log_index = _next_index;
@@ -573,7 +575,7 @@ void Replicator::_send_empty_entries(bool is_heartbeat) {
     google::protobuf::Closure* done = brpc::NewCallback(
                 is_heartbeat ? _on_heartbeat_returned : _on_rpc_returned, 
                 _id.value, cntl.get(), request.get(), response.get(),
-                butil::monotonic_time_ms());
+                send_time);
 
     RaftService_Stub stub(&_sending_channel);
     stub.append_entries(cntl.release(), request.release(), 

@@ -243,6 +243,8 @@ public:
 
     int64_t get_peer_last_committed(const braft::PeerId &peer);
 
+    int64_t get_last_heartbeat_timestamp();
+
 private:
 friend class butil::RefCountedThreadSafe<NodeImpl>;
 
@@ -467,6 +469,7 @@ private:
 
     State _state;
     int64_t _current_term;
+    int64_t _last_heartbeat_timestamp; // last time syncd with master
     PeerId _leader_id;
     PeerId _voted_id;
     VoteBallotCtx _vote_ctx; // candidate vote ctx
