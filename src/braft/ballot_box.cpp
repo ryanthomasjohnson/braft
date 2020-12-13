@@ -14,6 +14,7 @@
 
 // Authors: Zhangyi Chen(chenzhangyi01@baidu.com)
 
+#include <algorithm>
 #include <butil/scoped_lock.h>
 #include <bvar/latency_recorder.h>
 #include <bthread/unstable.h>
@@ -54,6 +55,7 @@ int BallotBox::commit_at(
     if (_pending_index == 0) {
         return EINVAL;
     }
+    _last_committed[peer] = std::max(_last_committed[peer], last_log_index);
     if (last_log_index < _pending_index) {
         return 0;
     }
@@ -183,6 +185,10 @@ void BallotBox::get_status(BallotBoxStatus* status) {
         status->pending_index = _pending_index;
         status->pending_queue_size = _pending_meta_queue.size();
     }
+}
+
+int64_t BallotBox::get_last_committed(const braft::PeerId &peer) {
+    return _last_committed[peer];
 }
 
 }  //  namespace braft

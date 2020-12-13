@@ -762,6 +762,8 @@ public:
     //        is less than the majority.
     bool readonly();
 
+    int64_t get_peer_last_committed(const braft::PeerId &peer);
+
 private:
     NodeImpl* _impl;
 };

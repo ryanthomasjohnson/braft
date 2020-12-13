@@ -241,6 +241,8 @@ public:
 
     bool disable_cli() const { return _options.disable_cli; }
 
+    int64_t get_peer_last_committed(const braft::PeerId &peer);
+
 private:
 friend class butil::RefCountedThreadSafe<NodeImpl>;
 

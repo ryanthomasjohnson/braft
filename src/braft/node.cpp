@@ -1260,6 +1260,10 @@ void NodeImpl::unsafe_reset_election_timeout_ms(int election_timeout_ms,
     _follower_lease.reset_election_timeout_ms(election_timeout_ms, _options.max_clock_drift_ms);
 }
 
+int64_t NodeImpl::get_peer_last_committed(const braft::PeerId &peer) {
+    return _ballot_box->get_last_committed(peer);
+}
+
 void NodeImpl::on_error(const Error& e) {
     LOG(WARNING) << "node " << _group_id << ":" << _server_id
                  << " got error=" << e;

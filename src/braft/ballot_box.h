@@ -20,6 +20,7 @@
 #include <stdint.h>                             // int64_t
 #include <set>                                  // std::set
 #include <deque>
+#include <unordered_map>
 #include <butil/atomicops.h>                     // butil::atomic
 #include "braft/raft.h"
 #include "braft/util.h"
@@ -46,6 +47,12 @@ struct BallotBoxStatus {
     int64_t committed_index;
     int64_t pending_index;
     int64_t pending_queue_size;
+};
+
+struct PeerHash {
+    std::size_t operator()(const braft::PeerId& peer) const {
+        return std::hash<std::string>{}(peer.to_string());
+    }
 };
 
 class BallotBox {
@@ -90,14 +97,17 @@ public:
 
     void get_status(BallotBoxStatus* ballot_box_status);
 
+    int64_t get_last_committed(const braft::PeerId &peer);
+
 private:
 
-    FSMCaller*                                      _waiter;
-    ClosureQueue*                                   _closure_queue;                            
-    raft_mutex_t                                    _mutex;
-    butil::atomic<int64_t>                          _last_committed_index;
-    int64_t                                         _pending_index;
-    std::deque<Ballot>                              _pending_meta_queue;
+    FSMCaller*                                              _waiter;
+    ClosureQueue*                                           _closure_queue;                            
+    raft_mutex_t                                            _mutex;
+    butil::atomic<int64_t>                                  _last_committed_index;
+    int64_t                                                 _pending_index;
+    std::deque<Ballot>                                      _pending_meta_queue;
+    std::unordered_map<braft::PeerId, int64_t, PeerHash>    _last_committed;
 
 };
 

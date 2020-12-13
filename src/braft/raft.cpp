@@ -242,6 +242,10 @@ bool Node::readonly() {
     return _impl->readonly();
 }
 
+int64_t Node::get_peer_last_committed(const braft::PeerId &peer) {
+    return _impl->get_peer_last_committed(peer);
+}
+
 // ------------- Iterator
 void Iterator::next() {
     if (valid()) {
