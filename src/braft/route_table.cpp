@@ -222,6 +222,7 @@ butil::Status get_conf(const GroupId &group, Configuration &conf) {
         return butil::Status(ENOENT, "group %s is not registered in RouteTable",
                                     group.c_str());
     }
+    return {};
 }
 
 int remove_group(const GroupId& group) {
