@@ -36,6 +36,8 @@ int update_configuration(const GroupId& group, const std::string& conf_str);
 //  -1, otherwise
 int select_leader(const GroupId& group, PeerId* leader);
 
+butil::Status get_conf(const GroupId &group, Configuration &conf);
+
 // Update leader
 int update_leader(const GroupId& group, const PeerId& leader);
 int update_leader(const GroupId& group, const std::string& leader_str);

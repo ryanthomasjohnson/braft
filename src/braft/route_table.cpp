@@ -216,6 +216,14 @@ int select_leader(const GroupId& group, PeerId* leader) {
     return rtb->select_leader(group, leader);
 }
 
+butil::Status get_conf(const GroupId &group, Configuration &conf) {
+    RouteTable* const rtb = RouteTable::GetInstance();
+    if (rtb->list_conf(group, &conf) != 0) {
+        return butil::Status(ENOENT, "group %s is not registered in RouteTable",
+                                    group.c_str());
+    }
+}
+
 int remove_group(const GroupId& group) {
     RouteTable* const rtb = RouteTable::GetInstance();
     return rtb->remove_group(group);
